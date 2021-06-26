@@ -83,25 +83,6 @@ resource "azurerm_network_interface" "interfazWORKER01" {
 
 }
 
-resource "azurerm_network_interface" "interfazWORKER02" {
-  name                = "myinterfazWORKER02"  
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-
-    ip_configuration {
-    name                           = "configuracionWORKER02"
-    subnet_id                      = azurerm_subnet.miSubred.id 
-    private_ip_address_allocation  = "Static"
-    private_ip_address             = "192.168.1.112"
-    public_ip_address_id           = azurerm_public_ip.ipPublicaWORKER02.id
-  }
-
-    tags = {
-        environment = "CP2"
-    }
-
-}
-
 # IPs públicas
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip
 
@@ -133,19 +114,6 @@ resource "azurerm_public_ip" "ipPublicaMASTER" {
 
 resource "azurerm_public_ip" "ipPublicaWORKER01" {
   name                = "vmipWORKER01"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  allocation_method   = "Dynamic"
-  sku                 = "Basic"
-
-    tags = {
-        environment = "CP2"
-    }
-
-}
-
-resource "azurerm_public_ip" "ipPublicaWORKER02" {
-  name                = "vmipWORKER02"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"

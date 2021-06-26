@@ -43,9 +43,3 @@ resource "azurerm_network_interface_security_group_association" "sgWORKER01" {
     network_security_group_id = azurerm_network_security_group.mySecGroup.id
 
 }
-
-resource "azurerm_network_interface_security_group_association" "sgWORKER02" {
-    network_interface_id      = azurerm_network_interface.interfazWORKER02.id
-    network_security_group_id = azurerm_network_security_group.mySecGroup.id
-
-}

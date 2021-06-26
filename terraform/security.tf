@@ -23,11 +23,29 @@ resource "azurerm_network_security_group" "mySecGroup" {
     }
 }
 
-# Vinculamos el security group al interface de red
+# Vinculamos el security group a las interfaces de red
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_interface_security_group_association
 
-resource "azurerm_network_interface_security_group_association" "mySecGroupAssociation1" {
+resource "azurerm_network_interface_security_group_association" "sgNFS" {
     network_interface_id      = azurerm_network_interface.interfazNFS.id
+    network_security_group_id = azurerm_network_security_group.mySecGroup.id
+
+}
+
+resource "azurerm_network_interface_security_group_association" "sgMASTER" {
+    network_interface_id      = azurerm_network_interface.interfazMASTER.id
+    network_security_group_id = azurerm_network_security_group.mySecGroup.id
+
+}
+
+resource "azurerm_network_interface_security_group_association" "sgWORKER01" {
+    network_interface_id      = azurerm_network_interface.interfazWORKER01.id
+    network_security_group_id = azurerm_network_security_group.mySecGroup.id
+
+}
+
+resource "azurerm_network_interface_security_group_association" "sgWORKER02" {
+    network_interface_id      = azurerm_network_interface.interfazWORKER02.id
     network_security_group_id = azurerm_network_security_group.mySecGroup.id
 
 }

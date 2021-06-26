@@ -1,1 +1,7 @@
 credentials.tf
+.terraform.lock.hcl
+main.tf.save
+terraform.tfstate
+terraform.tfstate.backup
+centos.txt
+.terraform

@@ -1,0 +1,9 @@
+---
+
+  - hosts: master
+    vars_files:
+      - "group_vars/nfs.yaml"
+    gather_facts: yes
+    become: yes
+    roles:
+      - { role: nfs/server, tags: server }

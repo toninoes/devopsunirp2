@@ -1,0 +1,4 @@
+  
+    nfs_private_ip: 192.168.1.115
+    master_private_ip: 192.168.1.110
+    worker01_private_ip: 192.168.1.111

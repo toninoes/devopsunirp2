@@ -1,5 +1,0 @@
-
-- name: Create nfs Directory
-  file: 
-    path: /srv/nfs
-    state: directory

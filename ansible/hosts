@@ -2,11 +2,12 @@
 ansible_python_interpreter=/usr/bin/python3
 ansible_user=adminUsername
 
+# Descomentar host_key_checking = False dentro de /etc/ansible/ansible.cfg para deshabilitar la verificación de la clave SSH del host
 [master]
-master
+20.93.161.195
 
-[worker]
-worker01
+[workers]
+20.93.167.23
 
 [nfs]
-nfs
+20.93.165.66

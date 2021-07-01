@@ -1,0 +1,4 @@
+---
+
+- name: Copiar /etc/hosts a todos los hosts
+  copy: src=hosts dest=/etc/hosts

@@ -1,0 +1,7 @@
+---
+
+- name: Hacerlos en todos los hosts
+  hosts: all
+  become: true
+  roles:
+    - all

@@ -1,4 +1,67 @@
 ---
 
-- name: Copiar /etc/hosts a todos los hosts
+- name: Actualizamos todas las maquinas (dnf update -y)
+  dnf:
+    name: "*"
+    state: latest
+ 
+- name: Configurar la sincronización horaria (timedatectl set-timezone Europe/Madrid)
+  timezone:
+    name: Europe/Madrid
+    
+- name: Instalar chrony (dnf install chrony -y)
+  dnf:
+    name: chrony 
+    state: latest
+    
+- name: Servicio chronyd habilitado y arrancado (systemctl enable chronyd && systemctl start chronyd)
+  systemd:
+    name: chronyd    
+    state: started
+    enabled: yes
+    
+- name: Habilitar ntp (timedatectl set-ntp true)
+  command: /usr/bin/timedatectl set-ntp true
+  
+- name: Desactivar SELinux  si lo estuviera (sed -i s/SELINUX=enforcing/SELINUX=disabled/g /etc/selinux/config)
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: 'SELINUX=enforcing'
+    line: 'SELINUX=disabled'
+    
+- name: Instalar nfs-utils (dnf install nfs-utils -y)
+  dnf:
+    name: nfs-utils 
+    state: latest
+    
+- name: Instalar nfs4-acl-tools (dnf install nfs4-acl-tools -y)
+  dnf:
+    name: nfs4-acl-tools 
+    state: latest
+    
+- name: Instalar wget (dnf install wget -y)
+  dnf:
+    name: wget 
+    state: latest
+
+- name: Configuracion dominio interno, la interfaz podría cambiar
+  shell: |
+    echo 'DOMAIN=acme.es' >> /etc/sysconfig/network-scripts/ifcfg-eth0 
+  
+- name: Copiar /etc/hosts a todos los hosts para configurar resolución DNS
   copy: src=hosts dest=/etc/hosts
+
+
+- name: Desactivar Warning AllowZoneDrifting (sed -i s/AllowZoneDrifting=yes/AllowZoneDrifting=no/g /etc/firewalld/firewalld.conf)
+  lineinfile:
+    path: /etc/firewalld/firewalld.conf
+    regexp: 'AllowZoneDrifting=yes'
+    line: 'AllowZoneDrifting=no'
+    
+- name: Habilitar el firewall (systemctl enable firewalld && systemctl start firewalld)
+  systemd:
+    name: firewalld    
+    enabled: yes
+    state: started 
+
+

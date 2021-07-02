@@ -1,0 +1,35 @@
+---
+
+- name: Creamos el punto de montaje (mkdir /srv/nfs)
+  file:
+    path: /srv/nfs
+    state: directory
+    
+- name: Instalar net-tools (dnf install net-tools -y)
+  dnf:
+    name: net-tools 
+    state: latest
+    
+- name: Habilitar and arrancar el servicio NFS (systemctl enable nfs-server && systemctl start nfs-server)
+  systemd:
+    name: nfs-server
+    state: started    
+    enabled: yes
+    
+- name: Configurar el acceso al share de NFS. Copiar exports a /etc/exports
+  copy: src=exports dest=/etc/exports
+  
+- name: Leemos el fichero /etc/exports para aplicar la nueva configuración (exportfs -arv)
+  command: exportfs -arv
+  
+- name: Abrir los puertos del firewall para que el servicio sea accesible
+  firewalld:
+    service: '{{ item }}'
+    permanent: yes
+    state: enabled
+    immediate: yes
+  with_items:
+    - 'nfs'
+    - 'rpc-bind'
+    - 'mountd' 
+

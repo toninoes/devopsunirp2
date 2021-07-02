@@ -1,0 +1,2 @@
+/srv/nfs 192.168.1.110(rw,sync,no_root_squash)
+/srv/nfs 192.168.1.111(rw,sync,no_root_squash)

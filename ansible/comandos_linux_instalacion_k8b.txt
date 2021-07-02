@@ -1,0 +1,279 @@
+####################################################################################################################################
+#
+# Todo esto hay que hacerlo en ANSIBLE
+# Hecho en clase K8B. Repo: https://github.com/jadebustos/devopslabs/blob/master/labs-k8s/00-00-instalando-kubernetes.md
+#
+####################################################################################################################################
+# Ejecutar en TODAS
+####################################################################################################################################
+
+sudo su
+
+# Actualizamos todas las maquinas
+dnf update -y
+
+# Configurar la sincronización horaria
+timedatectl set-timezone Europe/Madrid
+dnf install chrony -y
+systemctl enable chronyd
+systemctl start chronyd
+timedatectl set-ntp true
+
+# Desactivar SELinux  si lo estuviera
+sed -i s/=enforcing/=disabled/g /etc/selinux/config
+
+# Instalamos los siguientes paquetes
+dnf install nfs-utils nfs4-acl-tools wget -y
+
+# Configuracion dominio interno
+echo "DOMAIN=acme.es" >> /etc/sysconfig/network-scripts/ifcfg-eth0  # la interfaz podría cambiar
+
+# Configurar resolución DNS
+echo "192.168.1.110 master master.acme.es" >> /etc/hosts
+echo "192.168.1.111 worker01 worker01.acme.es" >> /etc/hosts
+echo "192.168.1.115 nfs nfs.acme.es" >> /etc/hosts
+
+# Activar firewalld
+systemctl enable firewalld
+systemctl start firewalld
+sed -i s/AllowZoneDrifting=yes/AllowZoneDrifting=no/g /etc/firewalld/firewalld.conf
+systemctl restart firewalld
+
+####################################################################################################################################
+# Instalación del servidor NFS
+####################################################################################################################################
+
+sudo su
+
+# creamos el punto de montaje
+mkdir /srv/nfs
+
+# Instalamos los paquetes de NFS y arrancamos el servicio
+dnf install net-tools -y
+systemctl enable nfs-server
+systemctl start nfs-server
+
+# configurar el acceso al share de NFS
+echo "/srv/nfs 192.168.1.110(rw,sync,no_root_squash)" > /etc/exports
+echo "/srv/nfs 192.168.1.111(rw,sync,no_root_squash)" >> /etc/exports
+
+# Leemos el fichero /etc/exports para aplicar la nueva configuración
+exportfs -arv
+
+# abrir los puertos del firewall para que el servicio sea accesible
+firewall-cmd --permanent --add-service=nfs
+firewall-cmd --permanent --add-service=rpc-bind
+firewall-cmd --permanent --add-service=mountd
+firewall-cmd --reload
+
+####################################################################################################################################
+# Realizar en el nodo master y los workers
+####################################################################################################################################
+
+sudo su
+
+# verificar que el nodo master y los workers ven el share por nfs
+showmount -e 192.168.1.115
+
+#Procedemos a crear el punto de montaje donde queremos montar el recurso.
+mkdir /mnt/nfs
+echo "192.168.1.115:/srv/nfs /mnt/nfs nfs _netdev 0 0" >> /etc/fstab
+mount -a
+
+# activar transparent masquerading para que los PODs puedan comunicarse dentro del cluster mediante VXLAN
+modprobe br_netfilter
+firewall-cmd --add-masquerade --permanent
+firewall-cmd --reload
+
+# permitir que kubernetes maneje correctamente el tráfico con el cortafuegos
+echo "net.bridge.bridge-nf-call-ip6tables = 1" > /etc/sysctl.d/k8s.conf
+echo "net.bridge.bridge-nf-call-iptables = 1" >> /etc/sysctl.d/k8s.conf
+sysctl --system
+
+# Instalamos docker que será el engine para ejecutar contenedores
+dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+dnf install docker-ce-20.10.6-3.el8 -y
+systemctl enable docker
+systemctl start docker
+
+# Configuramos el repositorio de kubernetes
+echo "[kubernetes]" > /etc/yum.repos.d/kubernetes.repo
+echo "name=Kubernetes" >> /etc/yum.repos.d/kubernetes.repo
+echo "baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64" >> /etc/yum.repos.d/kubernetes.repo
+echo "enabled=1" >> /etc/yum.repos.d/kubernetes.repo
+echo "gpgcheck=1" >> /etc/yum.repos.d/kubernetes.repo
+echo "repo_gpgcheck=1" >> /etc/yum.repos.d/kubernetes.repo
+echo "gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg" >> /etc/yum.repos.d/kubernetes.repo
+echo "exclude=kubelet kubeadm kubectl" >> /etc/yum.repos.d/kubernetes.repo
+
+# Instalamos kubernetes
+dnf install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+systemctl enable kubelet
+systemctl start kubelet
+
+####################################################################################################################################
+# Configurando kubernetes en el nodo master
+####################################################################################################################################
+
+sudo su
+
+# Configuramos el firewall para acceder a los servicios de kubernetes
+firewall-cmd --permanent --add-port=6443/tcp
+firewall-cmd --permanent --add-port=2379-2380/tcp
+firewall-cmd --permanent --add-port=10250/tcp
+firewall-cmd --permanent --add-port=10251/tcp
+firewall-cmd --permanent --add-port=10252/tcp
+firewall-cmd --permanent --add-port=10255/tcp
+firewall-cmd --reload
+
+# Configuramos kudeadm
+kubeadm config images pull
+
+# Permitiremos el acceso desde los workers
+firewall-cmd --permanent --add-rich-rule 'rule family=ipv4 source address=192.168.1.111/32 accept'
+firewall-cmd --reload
+
+# Permitimos el acceso de los contenedores a localhost
+firewall-cmd --zone=public --permanent --add-rich-rule 'rule family=ipv4 source address=172.17.0.0/16 accept'
+firewall-cmd --reload
+
+# Instalamos el plugin CNI (Container Network Interface) de kubernetes y definimos la red de los PODs
+kubeadm init --pod-network-cidr 192.169.0.0/16
+
+####################################################################################################################################
+echo "GUARDA EL RESULTADO DEL COMANDO DE ARRIBAAAAAAAAAAAAAAAAAAAAA !!!!!!!! es necesario para unir los workers al clúster"
+# PARA OBTENERLO:
+# kubeadm token create --print-join-command
+####################################################################################################################################
+
+# Para que el usuario root pueda utilizar kubectl para operar el cluster bastaría con ejecutar:
+export KUBECONFIG=/etc/kubernetes/admin.conf
+
+
+# Instalando la SDN (Calico). Instalamos el operador de Tigera
+kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+
+# Instalamos Calico junto con los custom resources que necesita. Para ello descargamos primero el fichero de definición:
+wget https://docs.projectcalico.org/manifests/custom-resources.yaml
+
+# Y cambiamos el cidr para que coincida con el de nuestra red de PODs, el fichero custom-resources.yaml
+sed -i s/192.168.0.0/192.169.0.0/g custom-resources.yaml
+
+# Instalamos Calico:
+kubectl apply -f custom-resources.yaml
+
+# Después de unos minutos veremos el clúster como Ready:
+kubectl get nodes
+
+# Vamos a autorizar al usuario root acceder al cluster
+mkdir -p /root/.kube
+cp -i /etc/kubernetes/admin.conf /root/.kube/config
+chown $(id -u):$(id -g) /root/.kube/config
+kubectl get nodes
+
+echo "Vemos que se muestra como NotReady. Eso es debido a que no hemos desplegado la red para los PODs todavía."
+
+# Para poder acceder a los PODs desde fuera de kubernetes necesitaremos instalar un ingress controller:
+kubectl apply -f https://raw.githubusercontent.com/haproxytech/kubernetes-ingress/v1.5/deploy/haproxy-ingress.yaml
+
+# Vemos que se crea un namespace para el ingress controller:
+kubectl get namespaces
+kubectl get pods --namespace=haproxy-controller
+
+# Vemos los servicios:
+kubectl get svc -A
+
+# Creamos un usuario no administrador para la gestión del clúster:
+useradd -md /home/kubeadmin kubeadmin
+passwd kubeadmin
+
+##################### hasta aqui. Luego ejecutar esto ######################################
+
+mkdir -p /home/kubeadmin/.kube
+cp -i /etc/kubernetes/admin.conf /home/kubeadmin/.kube/config
+chown kubeadmin. /home/kubeadmin/.kube/config
+echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers.d/kubeadmin
+
+####################################################################################################################################
+# Configurando los workers
+####################################################################################################################################
+
+sudo su
+
+# abrir los puertos:
+firewall-cmd --zone=public --permanent --add-port={10250,30000-32767}/tcp
+firewall-cmd --reload
+
+# Ahora para unirse al clúster tendremos que ejecutar en los nodos el comando de kubeadm que nos produjo la ejecución de kubadmin init
+
+
+####################################################################################################################################
+# VERIFICACIONES
+####################################################################################################################################
+
+# EN MASTER: Puede llevar unos minutos que los workers aparezcan como Ready
+kubectl get nodes
+kubectl get pods -A -o wide
+kubectl cluster-info
+kubectl version
+kubectl get replicasets
+kubectl describe replicasets
+
+
+# EN WORKERS: 
+ip a
+ping -c 4 192.169.112.0 (La misma IP que aparece en interfaz vxlan.calico del comando anterior)
+
+
+####################################################################################################################################
+# DESPLEGAR APP JENKINS
+####################################################################################################################################
+[root@master kubeadmin]# cat miapp.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: webapp
+        image: jenkins/jenkins:lts
+        ports:
+        - containerPort: 80
+
+
+# Para realizar el deployment:
+kubectl apply -f first-app.yaml
+
+# Depués de crear el deployment:
+kubectl get pods --namespace=default
+kubectl describe pod PONER_NOMBRE_KE_SALE
+
+# logs
+kubectl logs -f PONER_NOMBRE_KE_SALE
+
+# ENTRAR
+kubectl exec -ti PONER_NOMBRE_KE_SALE -- /bin/bash
+
+# Podemos ver los eventos del namespace para ver que está pasando:
+kubectl get events --namespace=default
+
+# Podemos consultar el yaml del pod:
+kubectl get pod PONER_NOMBRE_KE_SALE -o yaml > PONER_NOMBRE_KE_SALE.yaml
+
+# Para borrar la aplicación deberemos borrar el deployment:
+kubectl get deployments
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+webapp   1/1     1            1           108m
+
+kubectl delete deployments webapp

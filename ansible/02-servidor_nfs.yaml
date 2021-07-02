@@ -1,0 +1,7 @@
+---
+
+- name: Hacerlo en el servidor NFS sólamente
+  hosts: all
+  become: true
+  roles:
+    - nfs-server

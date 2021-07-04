@@ -1,0 +1,7 @@
+---
+
+- name: Realizar en el nodo master y los workers
+  hosts: master,workers
+  become: true
+  roles:
+    - master-workers

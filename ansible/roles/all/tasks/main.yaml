@@ -1,9 +1,19 @@
 ---
 
-- name: Actualizamos todas las maquinas (dnf update -y)
+- name: Antes de actualizar todas las máquinas
+  command: date
+  register: antes
+- debug: var=antes.stdout_lines
+
+- name: Actualizamos todas las maquinas (dnf update -y). Esto durará unos 20 minutos...
   dnf:
     name: "*"
     state: latest
+
+- name: Hora de fin del update.
+  command: date
+  register: despues
+- debug: var=despues.stdout_lines
  
 - name: Configurar la sincronización horaria (timedatectl set-timezone Europe/Madrid)
   timezone:
@@ -29,21 +39,14 @@
     regexp: 'SELINUX=enforcing'
     line: 'SELINUX=disabled'
     
-- name: Instalar nfs-utils (dnf install nfs-utils -y)
+- name: Instalamos los siguientes paquetes... (dnf install nfs-utils nfs4-acl-tools wget -y)
   dnf:
-    name: nfs-utils 
+    name: 
+      - nfs-utils
+      - nfs4-acl-tools
+      - wget
     state: latest
     
-- name: Instalar nfs4-acl-tools (dnf install nfs4-acl-tools -y)
-  dnf:
-    name: nfs4-acl-tools 
-    state: latest
-    
-- name: Instalar wget (dnf install wget -y)
-  dnf:
-    name: wget 
-    state: latest
-
 - name: Configuracion dominio interno, la interfaz podría cambiar
   shell: |
     echo 'DOMAIN=acme.es' >> /etc/sysconfig/network-scripts/ifcfg-eth0 

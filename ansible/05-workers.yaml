@@ -1,0 +1,7 @@
+---
+
+- name: Realizar en todos los workers.
+  hosts: workers
+  become: true
+  roles:
+    - workers

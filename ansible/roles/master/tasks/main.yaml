@@ -1,0 +1,99 @@
+---
+
+- name: Configuramos el firewall para acceder a los servicios de kubernetes.
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  with_items:
+    - "6443/tcp"
+    - "2379-2380/tcp"
+    - "10250/tcp"
+    - "10251/tcp"
+    - "10255/tcp"
+    
+    
+- name: Configuramos kudeadm
+  shell: kubeadm config images pull
+  
+  
+- name: Permitiremos el acceso desde los workers
+  firewalld:
+    rich_rule: "{{ item }}"
+    zone: public
+    permanent: yes
+    state: enabled
+    immediate: yes
+  with_items:
+    - "rule family=ipv4 source address=192.168.1.111/32 accept" #worker01
+    
+    
+- name: Permitimos el acceso de los contenedores a localhost
+  firewalld:
+    rich_rule: "rule family=ipv4 source address=172.17.0.1/16 accept"
+    zone: public
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+
+- name: Instalamos el plugin CNI (Container Network Interface) de kubernetes y definimos la red de los PODs
+  shell: kubeadm init --pod-network-cidr 192.169.0.0/16
+    
+
+- name: El comando anterior, al final, generaba comando necesario para que los workers se unieran al cluster. Volvemos a obtenerlo.
+  shell: kubeadm token create --print-join-command
+  register: join_command_raw
+  
+  
+- name: Definimos la salida como variable para poder luego usarla en los workers
+  set_fact:
+    join_command: "{{ join_command_raw.stdout_lines[0] }}"
+  
+  
+- name: Para que el usuario root pueda utilizar kubectl para operar el cluster bastaría con ejecutar (export KUBECONFIG=/etc/kubernetes/admin.conf)
+  shell: export KUBECONFIG=/etc/kubernetes/admin.conf
+
+  
+- name: Autorizamos al usuario root a acceder al cluster - 1 - Crear directorio (mkdir -p /root/.kube)
+  file:
+    path: /root/.kube
+    state: directory
+    
+    
+- name: Autorizamos al usuario root a acceder al cluster - 2 - Copiamos fichero (cp -i /etc/kubernetes/admin.conf /root/.kube/config)
+  copy:
+    remote_src: yes
+    src: /etc/kubernetes/admin.conf
+    dest: /root/.kube/config
+    
+    
+- name: Autorizamos al usuario root a acceder al cluster - 3 - Damos permisos al fichero  (chown $(id -u):$(id -g) /root/.kube/config )
+  shell: chown $(id -u):$(id -g) /root/.kube/config
+
+
+- name: Instalando la SDN (Calico). Instalamos el operador de Tigera (kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml)
+  shell: kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+  
+  
+- name: Descargamos el fichero de definición para instalar Calico. (wget https://docs.projectcalico.org/manifests/custom-resources.yaml)
+  get_url:
+    url: https://docs.projectcalico.org/manifests/custom-resources.yaml
+    dest: /etc/custom-resources.yaml
+    force: yes
+    
+    
+- name: Cambiamos el cidr para que coincida con el de nuestra red de PODs, el fichero custom-resources.yaml (sed -i s/192.168.0.0/192.169.0.0/g custom-resources.yaml)
+  replace:
+    path: /etc/custom-resources.yaml
+    regexp: '192.168.0.0/16'
+    replace: '192.169.0.0/16'
+    
+
+- name: Instalamos Calico
+  shell: kubectl apply -f /etc/custom-resources.yaml
+
+
+- name: Para poder acceder a los PODs desde fuera de kubernetes necesitaremos instalar un ingress controller
+  shell: kubectl apply -f https://raw.githubusercontent.com/haproxytech/kubernetes-ingress/v1.5/deploy/haproxy-ingress.yaml

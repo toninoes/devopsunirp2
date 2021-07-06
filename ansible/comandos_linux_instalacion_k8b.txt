@@ -149,6 +149,14 @@ echo "GUARDA EL RESULTADO DEL COMANDO DE ARRIBAAAAAAAAAAAAAAAAAAAAA !!!!!!!! es 
 # Para que el usuario root pueda utilizar kubectl para operar el cluster bastaría con ejecutar:
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
+# Vamos a autorizar al usuario root acceder al cluster
+mkdir -p /root/.kube
+cp -i /etc/kubernetes/admin.conf /root/.kube/config
+chown $(id -u):$(id -g) /root/.kube/config
+kubectl get nodes
+
+echo "Vemos que se muestra como NotReady. Eso es debido a que no hemos desplegado la red para los PODs todavía."
+
 
 # Instalando la SDN (Calico). Instalamos el operador de Tigera
 kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
@@ -165,13 +173,7 @@ kubectl apply -f custom-resources.yaml
 # Después de unos minutos veremos el clúster como Ready:
 kubectl get nodes
 
-# Vamos a autorizar al usuario root acceder al cluster
-mkdir -p /root/.kube
-cp -i /etc/kubernetes/admin.conf /root/.kube/config
-chown $(id -u):$(id -g) /root/.kube/config
-kubectl get nodes
 
-echo "Vemos que se muestra como NotReady. Eso es debido a que no hemos desplegado la red para los PODs todavía."
 
 # Para poder acceder a los PODs desde fuera de kubernetes necesitaremos instalar un ingress controller:
 kubectl apply -f https://raw.githubusercontent.com/haproxytech/kubernetes-ingress/v1.5/deploy/haproxy-ingress.yaml

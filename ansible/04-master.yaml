@@ -1,0 +1,7 @@
+---
+
+- name: Realizar sólo en el nodo master.
+  hosts: master
+  become: true
+  roles:
+    - master

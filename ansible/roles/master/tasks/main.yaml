@@ -63,8 +63,8 @@
   shell: chown $(id -u):$(id -g) /root/.kube/config
 
 
-#- name: Instalando la SDN (Calico). Instalamos el operador de Tigera (kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml)
-#  shell: kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+- name: Instalando la SDN (Calico). Instalamos el operador de Tigera (kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml)
+  shell: kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
   
   
 - name: Descargamos el fichero de definición para instalar Calico. (wget https://docs.projectcalico.org/manifests/custom-resources.yaml)
@@ -81,8 +81,8 @@
     replace: '192.169.0.0/16'
     
 
-#- name: Instalamos Calico
-#  shell: kubectl apply -f /etc/custom-resources.yaml
+- name: Instalamos Calico
+  shell: kubectl apply -f /etc/custom-resources.yaml
 
 
 - name: Para poder acceder a los PODs desde fuera de kubernetes necesitaremos instalar un ingress controller

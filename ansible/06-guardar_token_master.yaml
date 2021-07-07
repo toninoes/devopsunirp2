@@ -1,0 +1,16 @@
+---
+
+- hosts: master
+  become: yes
+  vars_files:
+  - token_variable
+  tasks:
+
+  - name: Obtenemos el comando para que los workers se unan al cluster Kubernetes
+    shell: kubeadm token create --print-join-command
+    register: output
+
+  - name: Copiamos la salida en fichero
+    local_action: copy content={{ output.stdout }} dest={{ token_file }}
+    become: no
+

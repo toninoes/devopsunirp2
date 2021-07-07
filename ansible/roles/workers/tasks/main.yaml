@@ -9,11 +9,3 @@
   with_items:
     - "10250/tcp"
     - "30000-32767/tcp"
-    
-    
-- name: Ahora para unirse al clúster tendremos que ejecutar en los nodos el comando de kubeadm que nos produjo la ejecución de kubadmin init
-  shell: "{{ hostvars['master'].join_command }} >> node_joined.txt"
-  args:
-    chdir: $HOME
-    creates: node_joined.txt
-    

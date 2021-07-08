@@ -12,11 +12,11 @@ Vamos a desplegarlas en una subred **192.168.1.0/24** las IP privadas de las má
 
 Debido a las limitaciones de la cuenta Azure student de 4 vCPU y ya que la maquina que actúa como master necesita al menos 2 de ellos, hemos tenido que reducir a sólo 1 worker. Quedándonos así:
 
-| Role | Sistema Operativo | vCPUs | Memoria (GiB) | Disco Duro |
+| Role | Sistema Operativo / Tipo | vCPUs | Memoria (GiB) | Disco Duro |
 |------|-------------------|-------|---------------|------------|
-| nfs  | CentOS 8          | 1     | 4             | 1 x 30 GiB |
-| master | CentOS 8        | 2     | 8             | 1 x 30 GiB |
-| worker01 | CentOS 8        | 1     | 4             | 1 x 30 GiB |
+| nfs  | CentOS 8 / Standard_DS1_v2           | 1     | 4             | 1 x 30 GiB |
+| master | CentOS 8 / Standard_D2s_v3        | 2     | 8             | 1 x 30 GiB |
+| worker01 | CentOS 8 / Standard_DS1_v2       | 1     | 4             | 1 x 30 GiB |
 
 ## Terraform
 En el directorio terraform de este repositorio se encuentra lo necesario para deplegar toda la infraestructura en Azure.

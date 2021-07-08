@@ -28,12 +28,13 @@ Como en esta practica vamos a usar Centos8, deberas aceptar los terminos de uso 
 
 Todo esto lo puedes hacer directamente en la Cloud Shell de la consola de Azure, si no quieres instalar el cliente en local.
 
-Debes de disponer de la última versión de Terraform instalada y finalmente ejecutar los siguientes comandos:
+Debes de disponer de la última versión de Terraform instalada y finalmente ejecutar los siguientes comandos dentro del directorio terraform:
 
 ```console
-[toni@tonipc: ~]# terraform init
-[toni@tonipc: ~]# terraform plan
-[toni@tonipc: ~]# terraform apply
+toni@tonipc:~/devopsunirp2/terraform$ terraform init
+toni@tonipc:~/devopsunirp2/terraform$ terraform plan
+toni@tonipc:~/devopsunirp2/terraform$ terraform apply
 ```
 
 ## Ansible
+Contiene todos los ficheros necesarios para desplegar el cluster de Kubernetes y la aplicación.

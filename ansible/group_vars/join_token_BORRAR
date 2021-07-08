@@ -1,1 +1,0 @@
-kubeadm join 192.168.1.110:6443 --token 7pfajd.ribw2ncc5yip458u --discovery-token-ca-cert-hash sha256:9261cc4389f14793acd5bea70df3b5c476577b9aea0433ee9504855f30fc4cfa 

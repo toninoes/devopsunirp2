@@ -12,7 +12,6 @@ Vamos a desplegarlas en una subred **192.168.1.0/24** las IP privadas de las má
 
 Debido a las limitaciones de la cuenta Azure student de 4 vCPU y ya que la maquina que actúa como master necesita al menos 2 de ellos, hemos tenido que reducir a sólo 1 worker. Quedándonos así:
 
------------------------------------------------------------------
 | Role | Sistema Operativo | vCPUs | Memoria (GiB) | Disco Duro |
 |------|-------------------|-------|---------------|------------|
 | nfs  | CentOS 8          | 1     | 4             | 1 x 30 GiB |

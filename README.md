@@ -23,8 +23,8 @@ Estos datos se obtendrán al hacer az login con el cli de Azure.
 
 Como en esta practica vamos a usar Centos8, deberas aceptar los terminos de uso de dicha imagen en Azure con
 
-```
-az vm image terms accept --urn cognosys:centos-8-stream-free:centos-8-stream-free:1.2019.0810
+```console
+[toni@tonipc: ~]# az vm image terms accept --urn cognosys:centos-8-stream-free:centos-8-stream-free:1.2019.0810
 ```
 
 Todo esto lo puedes hacer directamente en la Cloud Shell de la consola de Azure, si no quieres instalar el cliente en local.

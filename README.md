@@ -18,6 +18,32 @@ Debido a las limitaciones de la cuenta Azure student de 4 vCPU y ya que la maqui
 | master | CentOS 8 / Standard_D2s_v3        | 2     | 8             | 1 x 30 GiB |
 | worker01 | CentOS 8 / Standard_DS1_v2       | 1     | 4             | 1 x 30 GiB |
 
+Debemos tener un par de claves en nuestro equipo, ya que se copiarán a las maquinas virtuales azure en el despliegue y las utilizaremos también luego para el nodo master que hará de controller de ansible, para ello hacemos en nuestro equipo:
+
+```console
+toni@tonipc:~ ssh-keygen -t rsa -b 4096
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/toni/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in id_rsa
+Your public key has been saved in id_rsa.pub
+The key fingerprint is:
+SHA256:d6ePc0yE/+ZhkgTgxPq345n4iEV5vmbUnCUFt0YXPPUc tonipc
+The key's randomart image is:
++---[RSA 4096]----+
+|        o+..o o. |
+|        oo.o o  E|
+|        ..o. .o..|
+|     . o . .o .+o|
+|    . o S B ++. o|
+|     o   O =.++  |
+|      . +   += + |
+|     . = .  .o= +|
+|      +.+   .o.o.|
++----[SHA256]-----+
+```
+
 ## Terraform
 En el directorio terraform de este repositorio se encuentra lo necesario para deplegar toda la infraestructura en Azure.
 

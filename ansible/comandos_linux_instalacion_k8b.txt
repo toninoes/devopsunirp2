@@ -234,21 +234,21 @@ ping -c 4 192.169.112.0 (La misma IP que aparece en interfaz vxlan.calico del co
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webapp
+  name: jenkins
   labels:
-    app: webapp
+    app: jenkins
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: webapp
+      app: jenkins
   template:
     metadata:
       labels:
-        app: webapp
+        app: jenkins
     spec:
       containers:
-      - name: webapp
+      - name: jenkins
         image: jenkins/jenkins:lts
         ports:
         - containerPort: 80
@@ -279,3 +279,17 @@ NAME     READY   UP-TO-DATE   AVAILABLE   AGE
 webapp   1/1     1            1           108m
 
 kubectl delete deployments webapp
+
+COPIAR AL MASTER
+
+IPMASTER=20.101.47.253
+scp ~/.ssh/id_rsa ~/.ssh/id_rsa.pub  adminUsername@$IPMASTER:~/.ssh
+ssh adminUsername@$IPMASTER
+
+LUEGO EN MASTER INSTALAR
+sudo yum install epel-release -y
+sudo yum install ansible git -y
+sudo sed '/host_key_checking/s/^#//g' -i /etc/ansible/ansible.cfg
+git clone https://github.com/toninoes/devopsunirp2.git
+cd devopsunirp2/ansible
+sudo ./deploy.sh

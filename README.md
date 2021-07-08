@@ -5,7 +5,7 @@ Consiste en desplegar un clúster de Kubernetes en Azure utilizando para ello Te
 ## Terraform
 En el directorio terraform de este repositorio se encuentra lo necesario para deplegar toda la infraestructura en Azure.
 
-### Instrucciones de despliegue
+### Instrucciones de despliegue de la infraestructura Azure
 En primer lugar deberás alojar en este mismo directorio tu fichero de credenciales credential.tf que tiene la siguiente estructura:
 
 ```

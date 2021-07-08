@@ -7,7 +7,8 @@ if [ "$1" != "" ]; then
 	sudo yum install ansible git -y
 	sudo sed '/host_key_checking/s/^#//g' -i /etc/ansible/ansible.cfg
 	git clone https://github.com/toninoes/devopsunirp2.git
-	devopsunirp2/ansible/deploy.sh
+	cd devopsunirp2/ansible/
+	./deploy.sh
 	'''
 else
     echo "Necesito IP pública de master como argumento de este script. Ejecute de nuevo."

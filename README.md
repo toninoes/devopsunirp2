@@ -1,5 +1,4 @@
 # Práctica 2 del curso de Experto en Devops &amp; Cloud de UNIR
-# Automatización de despliegues en entornos Cloud
 
 Consiste en desplegar un clúster de Kubernetes en Azure utilizando para ello Terraform y Ansible.
 

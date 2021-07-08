@@ -4,7 +4,6 @@ Consiste en desplegar un clúster de Kubernetes en Azure utilizando para ello Te
 
 Vamos a desplegarlas en una subred **192.168.1.0/24** las IP privadas de las máquinas serán:
 
----------------
 | Nombre | IP |
 |------|------|
 | nfs.acme.es  | 192.168.1.115/24 |

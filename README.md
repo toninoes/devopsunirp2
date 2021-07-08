@@ -21,7 +21,7 @@ Debido a las limitaciones de la cuenta Azure student de 4 vCPU y ya que la maqui
 Debemos tener un par de claves en nuestro equipo, ya que se copiarán a las maquinas virtuales azure en el despliegue y las utilizaremos también luego para el nodo master que hará de controller de ansible, para ello hacemos en nuestro equipo:
 
 ```console
-toni@tonipc:~ ssh-keygen -t rsa -b 4096
+toni@tonipc:~$ ssh-keygen -t rsa -b 4096
 Generating public/private rsa key pair.
 Enter file in which to save the key (/home/toni/.ssh/id_rsa): 
 Enter passphrase (empty for no passphrase): 

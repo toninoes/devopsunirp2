@@ -22,7 +22,7 @@ Debido a las limitaciones de la cuenta Azure student de 4 vCPU y ya que la maqui
 En el directorio terraform de este repositorio se encuentra lo necesario para deplegar toda la infraestructura en Azure.
 
 ### Instrucciones de despliegue de la infraestructura Azure
-En primer lugar deberás alojar en este mismo directorio tu fichero de credenciales credential.tf que tiene la siguiente estructura:
+En primer lugar deberás alojar en este mismo directorio tu fichero de credenciales credentials.tf que tiene la siguiente estructura:
 
 ```
  provider "azurerm" {

@@ -1,6 +1,4 @@
-# Práctica 2 del curso de Experto en Devops &amp; Cloud de UNIR
-
-Consiste en desplegar un clúster de Kubernetes en Azure utilizando para ello Terraform y Ansible.
+# Despliegue de clúster de Kubernetes en Azure utilizando Terraform y Ansible.
 
 Vamos a desplegarlas en una subred **192.168.1.0/24** las IP privadas de las máquinas serán:
 

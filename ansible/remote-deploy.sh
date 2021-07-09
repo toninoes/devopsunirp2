@@ -11,5 +11,6 @@ if [ "$1" != "" ]; then
 	./deploy.sh
 	'''
 else
-    echo "Necesito IP pública de master como argumento de este script. Ejecute de nuevo."
+    echo "Necesito IP pública de master como argumento de este script."
+    echo "Ejemplo: ./remote-deploy.sh 11.22.33.44"
 fi

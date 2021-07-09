@@ -83,7 +83,7 @@ Una vez desplegada toda la infraestructura con Terraform, vamos a conectarnos al
 ```console
 toni@tonipc:~$ MASTER=100.111.122.133 # IP pública asignada a master en Azure
 toni@tonipc:~$ scp ~/.ssh/id_rsa ~/.ssh/id_rsa.pub  adminUsername@$MASTER:~/.ssh
-toni@tonipc:~$ ssh adminUsername@$$MASTER
+toni@tonipc:~$ ssh adminUsername@$MASTER
 ```
 
 Una vez conectados a master, haremos:

@@ -80,3 +80,60 @@ toni@tonipc:~/devopsunirp2/terraform$ terraform apply
 
 ## Ansible
 Contiene todos los ficheros necesarios para desplegar el cluster de Kubernetes y la aplicación.
+Una vez desplegada toda la infraestructura con Terraform, vamos a conectarnos al nodo master por ssh el cual será desde donde lanzaremos los comandos de ansible, pero antes desde nuestro equipo local haremos:
+
+```console
+toni@tonipc:~$ MASTER=100.111.122.133 # IP pública asignada a master en Azure
+toni@tonipc:~$ scp ~/.ssh/id_rsa ~/.ssh/id_rsa.pub  adminUsername@$MASTER:~/.ssh
+toni@tonipc:~$ ssh adminUsername@$$MASTER
+```
+
+Una vez conectados a master, haremos:
+
+```console
+[adminUsername@master ~]$ sudo yum install epel-release -y
+[adminUsername@master ~]$ sudo yum install ansible git -y
+[adminUsername@master ~]$ sudo sed '/host_key_checking/s/^#//g' -i /etc/ansible/ansible.cfg
+[adminUsername@master ~]$ git clone https://github.com/toninoes/devopsunirp2.git
+[adminUsername@master ~]$ cd devopsunirp2/ansible/
+[adminUsername@master ~]$ ./deploy.sh
+PLAY [Hacerlos en todos los hosts] *********************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [worker01]
+ok: [nfs]
+ok: [master]
+
+TASK [all : Antes de actualizar todas las máquinas] ****************************
+changed: [nfs]
+changed: [worker01]
+changed: [master]
+...
+...
+...
+PLAY [Hacerlo en master] ***********************************************************************************************************************************************
+
+TASK [Gathering Facts] *************************************************************************************************************************************************
+ok: [master]
+
+TASK [app : Copiar fichero de la aplicacion] ***************************************************************************************************************************
+changed: [master]
+
+TASK [Deploy application] **********************************************************************************************************************************************
+changed: [master]
+
+PLAY RECAP *************************************************************************************************************************************************************
+master                     : ok=3    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+```
+
+...y trás un rato estará todo desplegado.
+
+## Verificaciones
+
+```console
+[root@master adminUsername]# kubectl get nodes
+NAME       STATUS   ROLES                  AGE   VERSION
+master     Ready    control-plane,master   46m   v1.21.2
+worker01   Ready    <none>                 46m   v1.21.2
+```

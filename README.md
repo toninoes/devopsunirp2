@@ -131,9 +131,71 @@ master                     : ok=3    changed=2    unreachable=0    failed=0    s
 
 ## Verificaciones
 
+Para verificar que los nodos están Ready:
+
 ```console
 [root@master adminUsername]# kubectl get nodes
 NAME       STATUS   ROLES                  AGE   VERSION
 master     Ready    control-plane,master   46m   v1.21.2
 worker01   Ready    <none>                 46m   v1.21.2
+[root@master adminUsername]#
+[root@master adminUsername]#
+[root@master adminUsername]#
+[root@master adminUsername]# kubectl get pods -A -o wide
+NAMESPACE            NAME                                       READY   STATUS    RESTARTS   AGE   IP               NODE       NOMINATED NODE   READINESS GATES
+calico-system        calico-kube-controllers-7f58dbcbbd-r7lr4   1/1     Running   0          47m   192.169.219.65   master     <none>           <none>
+calico-system        calico-node-gmkbg                          1/1     Running   0          47m   192.168.1.110    master     <none>           <none>
+calico-system        calico-node-hzgxf                          1/1     Running   0          47m   192.168.1.111    worker01   <none>           <none>
+calico-system        calico-typha-76569fffb4-6bj84              1/1     Running   0          46m   192.168.1.111    worker01   <none>           <none>
+calico-system        calico-typha-76569fffb4-gcj7d              1/1     Running   0          47m   192.168.1.110    master     <none>           <none>
+default              jenkins-74c7d654c9-hjl8r                   1/1     Running   0          18m   192.169.5.3      worker01   <none>           <none>
+haproxy-controller   haproxy-ingress-65c5db48c8-68mj7           1/1     Running   0          47m   192.169.5.1      worker01   <none>           <none>
+haproxy-controller   ingress-default-backend-78f5cc7d4c-kqzcr   1/1     Running   0          47m   192.169.5.2      worker01   <none>           <none>
+kube-system          coredns-558bd4d5db-29dt8                   1/1     Running   0          47m   192.169.219.66   master     <none>           <none>
+kube-system          coredns-558bd4d5db-6q4xh                   1/1     Running   0          47m   192.169.219.67   master     <none>           <none>
+kube-system          etcd-master                                1/1     Running   0          47m   192.168.1.110    master     <none>           <none>
+kube-system          kube-apiserver-master                      1/1     Running   0          47m   192.168.1.110    master     <none>           <none>
+kube-system          kube-controller-manager-master             1/1     Running   0          47m   192.168.1.110    master     <none>           <none>
+kube-system          kube-proxy-ck6p6                           1/1     Running   0          47m   192.168.1.110    master     <none>           <none>
+kube-system          kube-proxy-xlcsn                           1/1     Running   0          47m   192.168.1.111    worker01   <none>           <none>
+kube-system          kube-scheduler-master                      1/1     Running   0          47m   192.168.1.110    master     <none>           <none>
+tigera-operator      tigera-operator-86c4fc874f-ktfzf           1/1     Running   0          47m   192.168.1.110    master     <none>           <none>
+[root@master adminUsername]#
+[root@master adminUsername]#
+[root@master adminUsername]# kubectl get pods
+NAME                       READY   STATUS    RESTARTS   AGE
+jenkins-74c7d654c9-hjl8r   1/1     Running   0          21m
+```
+
+Vemos con el get pods que nuestro jenkins está corriendo. Y ahora los eventos que han sucedido en nuestro cluster:
+
+```console
+[root@master adminUsername]# kubectl get events
+LAST SEEN   TYPE     REASON                    OBJECT                          MESSAGE
+23m         Normal   Scheduled                 pod/jenkins-74c7d654c9-hjl8r    Successfully assigned default/jenkins-74c7d654c9-hjl8r to worker01
+22m         Normal   Pulling                   pod/jenkins-74c7d654c9-hjl8r    Pulling image "jenkins/jenkins:lts"
+22m         Normal   Pulled                    pod/jenkins-74c7d654c9-hjl8r    Successfully pulled image "jenkins/jenkins:lts" in 27.992273494s
+22m         Normal   Created                   pod/jenkins-74c7d654c9-hjl8r    Created container jenkins
+22m         Normal   Started                   pod/jenkins-74c7d654c9-hjl8r    Started container jenkins
+23m         Normal   SuccessfulCreate          replicaset/jenkins-74c7d654c9   Created pod: jenkins-74c7d654c9-hjl8r
+23m         Normal   ScalingReplicaSet         deployment/jenkins              Scaled up replica set jenkins-74c7d654c9 to 1
+52m         Normal   NodeHasSufficientMemory   node/master                     Node master status is now: NodeHasSufficientMemory
+52m         Normal   NodeHasNoDiskPressure     node/master                     Node master status is now: NodeHasNoDiskPressure
+52m         Normal   NodeHasSufficientPID      node/master                     Node master status is now: NodeHasSufficientPID
+52m         Normal   Starting                  node/master                     Starting kubelet.
+52m         Normal   NodeHasSufficientMemory   node/master                     Node master status is now: NodeHasSufficientMemory
+52m         Normal   NodeHasNoDiskPressure     node/master                     Node master status is now: NodeHasNoDiskPressure
+52m         Normal   NodeHasSufficientPID      node/master                     Node master status is now: NodeHasSufficientPID
+52m         Normal   NodeAllocatableEnforced   node/master                     Updated Node Allocatable limit across pods
+52m         Normal   RegisteredNode            node/master                     Node master event: Registered Node master in Controller
+52m         Normal   Starting                  node/master                     Starting kube-proxy.
+51m         Normal   NodeReady                 node/master                     Node master status is now: NodeReady
+51m         Normal   Starting                  node/worker01                   Starting kubelet.
+51m         Normal   NodeHasSufficientMemory   node/worker01                   Node worker01 status is now: NodeHasSufficientMemory
+51m         Normal   NodeHasNoDiskPressure     node/worker01                   Node worker01 status is now: NodeHasNoDiskPressure
+51m         Normal   NodeHasSufficientPID      node/worker01                   Node worker01 status is now: NodeHasSufficientPID
+51m         Normal   NodeAllocatableEnforced   node/worker01                   Updated Node Allocatable limit across pods
+51m         Normal   RegisteredNode            node/worker01                   Node worker01 event: Registered Node worker01 in Controller
+51m         Normal   Starting                  node/worker01                   Starting kube-proxy.
+51m         Normal   NodeReady                 node/worker01                   Node worker01 status is now: NodeReady
 ```

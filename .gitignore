@@ -6,3 +6,4 @@ terraform.tfstate.backup
 centos.txt
 .terraform
 join_token
+remote-deploy.sh

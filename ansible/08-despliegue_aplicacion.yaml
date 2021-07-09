@@ -1,0 +1,7 @@
+---
+
+- name: Hacerlo en master
+  hosts: master
+  become: true
+  roles:
+    - app

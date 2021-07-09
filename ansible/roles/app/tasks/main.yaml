@@ -1,0 +1,8 @@
+---
+
+- name: Copiar fichero de la aplicacion
+  copy: src=jenkins.yaml dest=/tmp/jenkins.yaml
+
+
+- name: Deploy application
+  command: kubectl apply -f /tmp/jenkins.yaml 

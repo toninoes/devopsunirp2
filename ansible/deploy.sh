@@ -8,3 +8,4 @@ ansible-playbook -i hosts 04-master.yaml
 ansible-playbook -i hosts 05-workers.yaml
 ansible-playbook -i hosts 06-guardar_token_master.yaml
 ansible-playbook -i hosts 07-unir_workers_cluster.yaml
+ansible-playbook -i hosts 08-despliegue_aplicacion.yaml

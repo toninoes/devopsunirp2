@@ -10,5 +10,4 @@
 
   - name: Unimos los workers al Cluster Kubernetes
     shell: |
-     kubeadm reset -f
      sh join_token.sh

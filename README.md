@@ -8,7 +8,7 @@ Vamos a desplegarlas en una subred **192.168.1.0/24** las IP privadas de las má
 | master.acme.es | 192.168.1.110/24 | 
 | worker01.acme.es | 192.168.1.111/24 | 
 
-Debido a las limitaciones de la cuenta Azure student de 4 vCPU y ya que la maquina que actúa como master necesita al menos 2 de ellos, hemos tenido que reducir a sólo 1 worker. Quedándonos así:
+Debido a las limitaciones de la cuenta Azure student de 4 vCPU y ya que la máquina que actúa como master necesita al menos 2 de ellos, hemos tenido que reducir a sólo 1 worker. Quedándonos así:
 
 | Role | Sistema Operativo / Tipo | vCPUs | Memoria (GiB) | Disco Duro |
 |------|-------------------|-------|---------------|------------|
@@ -16,7 +16,7 @@ Debido a las limitaciones de la cuenta Azure student de 4 vCPU y ya que la maqui
 | master | CentOS 8 / Standard_D2s_v3        | 2     | 8             | 1 x 30 GiB |
 | worker01 | CentOS 8 / Standard_DS1_v2       | 1     | 4             | 1 x 30 GiB |
 
-Debemos tener un par de claves en nuestro equipo, ya que se copiarán a las maquinas virtuales azure en el despliegue y las utilizaremos también luego para el nodo master que hará de controller de ansible, para ello hacemos en nuestro equipo:
+Debemos tener un par de claves en nuestro equipo, ya que se copiarán a las máquinas virtuales azure en el despliegue y las utilizaremos también luego para el nodo master que hará de controller de ansible, para ello hacemos en nuestro equipo:
 
 ```console
 toni@tonipc:~$ ssh-keygen -t rsa -b 4096
@@ -43,7 +43,7 @@ The key's randomart image is:
 ```
 
 ## Terraform
-En el directorio terraform de este repositorio se encuentra lo necesario para deplegar toda la infraestructura en Azure.
+En el directorio terraform de este repositorio se encuentra lo necesario para desplegar toda la infraestructura en Azure.
 
 ### Instrucciones de despliegue de la infraestructura Azure
 En primer lugar deberás alojar en este mismo directorio tu fichero de credenciales credentials.tf que tiene la siguiente estructura:
@@ -60,7 +60,7 @@ En primer lugar deberás alojar en este mismo directorio tu fichero de credencia
 
 Estos datos se obtendrán al hacer az login con el cli de Azure.
 
-Como en esta practica vamos a usar Centos8, deberas aceptar los terminos de uso de dicha imagen en Azure con
+Como en esta practica vamos a usar Centos8, deberas aceptar los términos de uso de dicha imagen en Azure con
 
 ```console
 [toni@tonipc: ~]# az vm image terms accept --urn cognosys:centos-8-stream-free:centos-8-stream-free:1.2019.0810
@@ -77,7 +77,7 @@ toni@tonipc:~/devopsunirp2/terraform$ terraform apply
 ```
 
 ## Ansible
-Contiene todos los ficheros necesarios para desplegar el cluster de Kubernetes y la aplicación.
+Contiene todos los ficheros necesarios para desplegar el clúster de Kubernetes y la aplicación.
 Una vez desplegada toda la infraestructura con Terraform, vamos a conectarnos al nodo master por ssh el cual será desde donde lanzaremos los comandos de ansible, pero antes desde nuestro equipo local haremos:
 
 ```console
@@ -165,7 +165,7 @@ NAME                       READY   STATUS    RESTARTS   AGE
 jenkins-74c7d654c9-hjl8r   1/1     Running   0          21m
 ```
 
-Vemos con el get pods que nuestro jenkins está corriendo. Y ahora los eventos que han sucedido en nuestro cluster:
+Vemos con el get pods que nuestro jenkins está corriendo. Y ahora los eventos que han sucedido en nuestro clúster:
 
 ```console
 [root@master adminUsername]# kubectl get events
